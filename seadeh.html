@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Seadeh Retro Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: a short brief on top, four retro columns as a 2x2 board, a sticky send bar at the bottom */
+:root{
+  --bg:#eaf1fb; --surface:#fbfdff; --ink:#14223a; --muted:#52627d; --line:#c9d7ec;
+  --accent:#2563c9; --accent-ink:#ffffff; --sel:#dce8fb; --warn:#b5562a; --shadow:rgba(20,34,58,.12);
+  --biz:#e8b425; --biz-bg:#fff6dc; --tech:#3b82f6; --tech-bg:#e3eeff;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1729; --surface:#172238; --ink:#e6edf8; --muted:#9aabc6; --line:#2a3956;
+  --accent:#6ea8ff; --accent-ink:#0b1426; --sel:#1d3157; --warn:#f0a36b; --shadow:rgba(0,0,0,.45);
+  --biz:#f2c94c; --biz-bg:#3a3118; --tech:#6ea8ff; --tech-bg:#1b2c4d; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-block:28px 120px;padding-inline:16px}
+main{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:4px 0 6px;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:70ch}
+.brief{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted)}
+.brief b{color:var(--ink)}
+.legend{display:inline-flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+.dot.biz{background:var(--biz)} .dot.tech{background:var(--tech)}
+details.ex{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 16px}
+details.ex summary{cursor:pointer;font-weight:600}
+.exgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.exgrid .excard{border-left:4px solid var(--line);padding:6px 10px;font-size:14px;background:var(--bg);border-radius:8px}
+.exgrid .excard.biz{border-left-color:var(--biz)} .exgrid .excard.tech{border-left-color:var(--tech)}
+.exgrid .excard b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.col{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 24px var(--shadow);min-width:0}
+.colhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.colhead h2{font-family:var(--display);font-size:26px;margin:0;line-height:1}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.q{margin:0;color:var(--muted);font-size:14px}
+.card{border:2px solid var(--line);border-left-width:6px;border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);animation:in .25s ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card.biz{border-left-color:var(--biz);background:var(--biz-bg)}
+.card.tech{border-left-color:var(--tech);background:var(--tech-bg)}
+.card.bad{border-color:var(--warn)}
+.cardtop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:5px 14px;cursor:pointer}
+.seg button[aria-pressed="true"].biz{background:var(--biz);color:#2b2100}
+.seg button[aria-pressed="true"].tech{background:var(--tech);color:#fff}
+.remove{font:inherit;font-size:13px;background:none;border:0;color:var(--muted);cursor:pointer;text-decoration:underline}
+.field{display:grid;grid-template-columns:64px 1fr;gap:8px;align-items:start}
+.field label{font-size:13px;font-weight:600;color:var(--muted);padding-top:8px}
+textarea,input[type=text]{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:7px 10px;width:100%;min-width:0}
+textarea{min-height:44px;resize:vertical}
+textarea:focus-visible,input:focus-visible{outline:none;border-color:var(--accent)}
+.hint{font-size:13px;color:var(--warn);margin:0}
+.add{font:inherit;font-weight:600;background:transparent;color:var(--accent);border:2px dashed var(--accent);border-radius:12px;padding:10px;cursor:pointer}
+.add:disabled{opacity:.4;cursor:not-allowed;border-style:solid}
+button:focus-visible,.seg button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:2px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px var(--shadow)}
+.barin{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.status{flex:1;min-width:200px;font-size:15px}
+.status.err{color:var(--warn)} .status.ok{color:var(--accent);font-weight:600}
+button.send{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:11px 26px;cursor:pointer}
+button.send:disabled{opacity:.45;cursor:not-allowed}
+.done{background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:10px;animation:in .3s ease-out}
+.done h2{font-family:var(--display);font-size:28px;margin:0}
+.done ul{margin:0;padding-left:18px}
+.done .row{display:flex;gap:10px;flex-wrap:wrap}
+.ghost{font:inherit;font-weight:600;background:transparent;color:var(--accent);border:2px solid var(--accent);border-radius:999px;padding:9px 20px;cursor:pointer}
+@media (max-width:760px){.board,.exgrid{grid-template-columns:1fr}.field{grid-template-columns:1fr}.field label{padding-top:0}}
+@media (prefers-reduced-motion:reduce){.card,.done{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Seadeh retro · before the meeting · about 15 minutes</div>
+    <h1>Your retro cards</h1>
+    <p class="lede">Up to 3 cards in each column, one idea per card. Write about decisions and the system, not people.</p>
+  </header>
+
+  <div class="brief">
+    <span class="legend"><i class="dot biz"></i><b>Business</b> = yellow</span>
+    <span class="legend"><i class="dot tech"></i><b>Tech</b> = blue</span>
+    <span>Same idea as someone else? Write it anyway. Duplicates are a signal.</span>
+    <span><b>Deadline:</b> <span id="deadline"></span></span>
+  </div>
+
+  <details class="ex">
+    <summary>See 4 example cards</summary>
+    <div class="exgrid">
+      <div class="excard tech"><b>Keep · Tech</b>Design arrived as code in the design repo, not as screenshots. <i>When:</i> from W2. <i>Effect:</i> front-end ported screens without guessing.</div>
+      <div class="excard biz"><b>Stop · Business</b>Rules changed after build without telling the requester. <i>When:</i> W6, trip chain. <i>Effect:</i> re-tested the same flow twice.</div>
+      <div class="excard tech"><b>Puzzled · Tech</b>Why did tickets wait days in PM Review when the build took hours? <i>When:</i> all weeks. <i>Effect:</i> finished work sat waiting for acceptance.</div>
+      <div class="excard biz"><b>Wish · Business</b>A weekly 10-min demo of what changed, before it reached review. <i>Effect:</i> catch meaning changes early.</div>
+    </div>
+  </details>
+
+  <section class="board" id="board"></section>
+
+  <section class="done" id="done" hidden aria-live="polite">
+    <h2 id="doneTitle">Sent.</h2>
+    <p id="doneText" style="margin:0"></p>
+    <ul id="doneList"></ul>
+    <p class="q">Taha groups all cards into themes before the meeting, so the room only has to vote.</p>
+    <div class="row"><button class="ghost" id="more" type="button">Add more cards</button></div>
+  </section>
+</main>
+
+<div class="bar" id="bar">
+  <div class="barin">
+    <span class="status" id="status" role="status">Add your first card.</span>
+    <button class="send" id="send" type="button" disabled>Send cards</button>
+  </div>
+</div>
+
+<script>
+// ---- Settings ----
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBeBb2xx2hu91JSgoQu33Kog-v1T2o_BKZpJ2g7ApD58XxjbDHpA4r5dhzcsofYabs/exec";
+const DEADLINE = "[time] today";
+const MAX_PER_COLUMN = 3;
+// -------------------
+
+const COLS = [
+  {key:"Keep",    q:"What worked, and we'd be foolish to drop next time?"},
+  {key:"Stop",    q:"What cost us time, quality or trust, and should not happen again?"},
+  {key:"Puzzled", q:"What still doesn't make sense, or what did you never get an answer to?"},
+  {key:"Wish",    q:"What would you have wanted that we didn't have (a tool, a rule, a person, a moment)?"}
+];
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(_){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(_){} }
+};
+let person = store.get("seadeh.person");
+if(!person){ person = crypto.randomUUID ? crypto.randomUUID() : String(Date.now())+Math.random().toString(16).slice(2); store.set("seadeh.person", person); }
+let batch = store.get("seadeh.batch") || 0;
+let sentCounts = store.get("seadeh.sent") || {Keep:0,Stop:0,Puzzled:0,Wish:0};
+let cards = store.get("seadeh.draft") || [];
+let nextId = cards.reduce((m,c)=>Math.max(m,c.id),0)+1;
+let sending = false, tried = false;
+
+$("deadline").textContent = DEADLINE;
+
+function save(){ store.set("seadeh.draft", cards); }
+function left(col){ return MAX_PER_COLUMN - sentCounts[col] - cards.filter(c=>c.column===col).length; }
+function valid(c){ return (c.kind==="Business"||c.kind==="Tech") && c.what.trim().length>2; }
+
+function buildBoard(){
+  const board = $("board"); board.innerHTML = "";
+  COLS.forEach(col=>{
+    const sec = document.createElement("section");
+    sec.className = "col"; sec.setAttribute("aria-labelledby","h-"+col.key);
+    sec.innerHTML = `<div class="colhead"><h2 id="h-${col.key}">${col.key}</h2><span class="count" id="c-${col.key}"></span></div>
+      <p class="q">${col.q}</p><div class="list" id="l-${col.key}" style="display:flex;flex-direction:column;gap:10px"></div>
+      <button type="button" class="add" id="a-${col.key}">+ Add a ${col.key} card</button>`;
+    board.appendChild(sec);
+    sec.querySelector(".add").addEventListener("click",()=>{ addCard(col.key); });
+  });
+  cards.forEach(renderCard);
+  refresh();
+}
+
+function addCard(col){
+  if(left(col)<=0) return;
+  const c = {id:nextId++, column:col, kind:"", what:"", when:"", effect:""};
+  cards.push(c); save(); renderCard(c); refresh();
+  const el = document.querySelector(`#card-${c.id} textarea`); if(el) el.focus();
+}
+
+function renderCard(c){
+  const wrap = document.createElement("div");
+  wrap.className = "card"; wrap.id = "card-"+c.id;
+  wrap.innerHTML = `<div class="cardtop">
+      <div class="seg" role="group" aria-label="Business or Tech">
+        <button type="button" class="biz" data-k="Business" aria-pressed="false">Business</button>
+        <button type="button" class="tech" data-k="Tech" aria-pressed="false">Tech</button>
+      </div>
+      <button type="button" class="remove">Remove</button>
+    </div>
+    <div class="field"><label for="w-${c.id}">What</label><textarea id="w-${c.id}" maxlength="300" placeholder="One sentence, plain words"></textarea></div>
+    <div class="field"><label for="n-${c.id}">When</label><input type="text" id="n-${c.id}" maxlength="60" placeholder="Week or date, if you remember (W3, 17 Aug…)"></div>
+    <div class="field"><label for="e-${c.id}">Effect</label><input type="text" id="e-${c.id}" maxlength="300" placeholder="What it changed: time lost, rework, confusion, a win"></div>
+    <p class="hint" hidden></p>`;
+  $("l-"+c.column).appendChild(wrap);
+  const w = wrap.querySelector("textarea"), n = wrap.querySelector("#n-"+c.id), e = wrap.querySelector("#e-"+c.id);
+  w.value = c.what; n.value = c.when; e.value = c.effect;
+  w.addEventListener("input",()=>{ c.what=w.value; save(); refresh(); });
+  n.addEventListener("input",()=>{ c.when=n.value; save(); });
+  e.addEventListener("input",()=>{ c.effect=e.value; save(); });
+  wrap.querySelectorAll(".seg button").forEach(b=>{
+    b.addEventListener("click",()=>{ c.kind=b.dataset.k; save(); paintCard(c); refresh(); });
+  });
+  wrap.querySelector(".remove").addEventListener("click",()=>{
+    cards = cards.filter(x=>x.id!==c.id); save(); wrap.remove(); refresh();
+  });
+  paintCard(c);
+}
+
+function paintCard(c){
+  const el = $("card-"+c.id); if(!el) return;
+  el.classList.toggle("biz", c.kind==="Business");
+  el.classList.toggle("tech", c.kind==="Tech");
+  el.querySelectorAll(".seg button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.k===c.kind)));
+  const hint = el.querySelector(".hint");
+  const problems = [];
+  if(tried && !(c.kind==="Business"||c.kind==="Tech")) problems.push("choose Business or Tech");
+  if(tried && c.what.trim().length<=2) problems.push("write the What");
+  el.classList.toggle("bad", problems.length>0);
+  hint.hidden = !problems.length;
+  hint.textContent = problems.length ? "To send this card: " + problems.join(" and ") + "." : "";
+}
+
+function refresh(){
+  COLS.forEach(col=>{
+    const used = MAX_PER_COLUMN - left(col.key);
+    $("c-"+col.key).textContent = used + " of " + MAX_PER_COLUMN + (sentCounts[col.key] ? " (" + sentCounts[col.key] + " sent)" : "");
+    $("a-"+col.key).disabled = left(col.key)<=0;
+    $("a-"+col.key).textContent = left(col.key)<=0 ? col.key + " is full" : "+ Add a " + col.key + " card";
+  });
+  cards.forEach(paintCard);
+  if(sending) return;
+  const ready = cards.filter(valid).length, total = cards.length;
+  $("send").disabled = ready===0;
+  $("send").textContent = ready ? "Send " + ready + (ready===1?" card":" cards") : "Send cards";
+  const st = $("status"); st.className = "status";
+  if(!total) st.textContent = sentCounts.Keep+sentCounts.Stop+sentCounts.Puzzled+sentCounts.Wish ? "Nothing new to send. Add another card if you like." : "Add your first card.";
+  else if(ready<total) st.textContent = ready + " of " + total + " cards ready. Unfinished cards stay here as a draft.";
+  else st.textContent = total + (total===1?" card":" cards") + " ready to send. Your draft is saved on this device.";
+}
+
+$("send").addEventListener("click", async ()=>{
+  tried = true;
+  const ready = cards.filter(valid);
+  if(!ready.length || sending){ refresh(); return; }
+  sending = true; $("send").disabled = true; $("send").textContent = "Sending…";
+  $("status").className="status"; $("status").textContent = "Sending " + ready.length + (ready.length===1?" card…":" cards…");
+  const payload = {type:"seadeh", person, batch: batch+1,
+    cards: ready.map(c=>({column:c.column, kind:c.kind, what:c.what.trim(), when:c.when.trim(), effect:c.effect.trim()}))};
+  try{
+    await fetch(SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    batch++; store.set("seadeh.batch", batch);
+    ready.forEach(c=>{ sentCounts[c.column]++; });
+    store.set("seadeh.sent", sentCounts);
+    const sentIds = new Set(ready.map(c=>c.id));
+    cards = cards.filter(c=>!sentIds.has(c.id)); save();
+    $("doneTitle").textContent = ready.length===1 ? "1 card sent." : ready.length + " cards sent.";
+    $("doneText").textContent = cards.length ? "You still have " + cards.length + " unfinished " + (cards.length===1?"card":"cards") + " in your draft." : "That's it. You don't need to do anything else.";
+    $("doneList").innerHTML = "";
+    ready.forEach(c=>{ const li=document.createElement("li"); li.textContent = c.column + " · " + c.kind + ": " + c.what.trim(); $("doneList").appendChild(li); });
+    $("board").hidden = true; document.querySelector("details.ex").hidden = true; $("bar").hidden = true;
+    $("done").hidden = false; window.scrollTo({top:0, behavior:"smooth"});
+  }catch(e){
+    $("status").className="status err";
+    $("status").textContent = "Couldn't send. Your cards are still here. Check your connection and try again.";
+  }finally{
+    sending = false; tried = false;
+    if(!$("bar").hidden) refresh();
+  }
+});
+
+$("more").addEventListener("click", ()=>{
+  $("done").hidden = true; $("board").hidden = false; document.querySelector("details.ex").hidden = false; $("bar").hidden = false;
+  buildBoard();
+});
+
+buildBoard();
+</script>
+</body>
+</html>
