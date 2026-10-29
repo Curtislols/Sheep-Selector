@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Seadeh Retro Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: toolbar on top (view, filter, search), then either four retro columns or theme groups; cards are sticky notes coloured by type */
+:root{
+  --bg:#eaf1fb; --surface:#fbfdff; --ink:#14223a; --muted:#52627d; --line:#c9d7ec;
+  --accent:#2563c9; --accent-ink:#ffffff; --sel:#dce8fb; --warn:#b5562a; --shadow:rgba(20,34,58,.12);
+  --biz:#e8b425; --biz-bg:#fff6dc; --tech:#3b82f6; --tech-bg:#e3eeff;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fs:15px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1729; --surface:#172238; --ink:#e6edf8; --muted:#9aabc6; --line:#2a3956;
+  --accent:#6ea8ff; --accent-ink:#0b1426; --sel:#1d3157; --warn:#f0a36b; --shadow:rgba(0,0,0,.45);
+  --biz:#f2c94c; --biz-bg:#3a3118; --tech:#6ea8ff; --tech-bg:#1b2c4d; color-scheme:dark}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-block:24px 48px;padding-inline:16px}
+body.big{--fs:19px}
+main{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4.5vw,38px);line-height:1.05;margin:2px 0 0}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.stats b{font-family:var(--display);font-size:24px;color:var(--ink);display:block;line-height:1;font-variant-numeric:tabular-nums}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 6px 18px var(--shadow)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;font-weight:600;border:0;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+input[type=search],input[type=password],input[type=text]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:999px;padding:6px 14px;min-width:0}
+input:focus-visible{outline:none;border-color:var(--accent)}
+.tb-btn{font:inherit;font-size:14px;font-weight:600;background:transparent;color:var(--accent);border:2px solid var(--accent);border-radius:999px;padding:6px 14px;cursor:pointer}
+.tb-btn:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+.updated{font-size:13px;color:var(--muted)}
+.updated.err{color:var(--warn)}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.lane{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.lane h2{font-family:var(--display);font-size:24px;margin:0;line-height:1;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lane h2 span{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.lane .q{margin:0;font-size:13px;color:var(--muted)}
+.lane.theme h2{font-size:21px}
+.empty{font-size:14px;color:var(--muted);font-style:italic;margin:0}
+.note{border-left:6px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;font-size:var(--fs);box-shadow:0 2px 6px var(--shadow)}
+.note.biz{background:var(--biz-bg);border-left-color:var(--biz)}
+.note.tech{background:var(--tech-bg);border-left-color:var(--tech)}
+.note .what{margin:0;font-weight:600;line-height:1.35}
+.note .meta{margin:0;font-size:.82em;color:var(--muted)}
+.note .meta b{color:var(--ink);font-weight:600}
+.note .tagrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.chip{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;border-radius:999px;padding:1px 8px;border:1.5px solid var(--line);color:var(--muted)}
+.note .theme-in{font-size:13px;padding:3px 10px;border-radius:8px;flex:1;min-width:120px;background:var(--surface)}
+.gate{max-width:440px;margin:60px auto;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px var(--shadow)}
+.gate h2{font-family:var(--display);font-size:26px;margin:0}
+.gate p{margin:0;color:var(--muted)}
+.gate .row{display:flex;gap:10px;flex-wrap:wrap}
+.gate input{flex:1;border-radius:12px}
+.primary{font:inherit;font-weight:600;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:9px 22px;cursor:pointer}
+.msg{font-size:14px;color:var(--warn);min-height:1.2em}
+@media (max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.board{grid-template-columns:1fr}}
+@media print{.toolbar,.gate{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <div class="eyebrow">Seadeh retro</div>
+      <h1>Retro board</h1>
+    </div>
+    <div class="stats" id="stats" hidden>
+      <div><b id="sCards">0</b>cards</div>
+      <div><b id="sPeople">0</b>people</div>
+      <div><b id="sBiz">0</b>business</div>
+      <div><b id="sTech">0</b>tech</div>
+      <div><b id="sThemes">0</b>themes</div>
+    </div>
+  </div>
+
+  <section class="gate" id="gate">
+    <h2>Enter the read key</h2>
+    <p>The cards are private. Use the secret word set in the Apps Script (READ_KEY). It is remembered on this device.</p>
+    <div class="row">
+      <input type="password" id="key" autocomplete="off" aria-label="Read key" placeholder="Read key">
+      <button class="primary" id="go" type="button">Open board</button>
+    </div>
+    <p class="msg" id="gateMsg" role="status"></p>
+  </section>
+
+  <div class="toolbar" id="toolbar" hidden>
+    <div class="seg" role="group" aria-label="View">
+      <button type="button" data-view="columns" aria-pressed="true">By column</button>
+      <button type="button" data-view="themes" aria-pressed="false">By theme</button>
+    </div>
+    <div class="seg" role="group" aria-label="Type">
+      <button type="button" data-kind="all" aria-pressed="true">All</button>
+      <button type="button" data-kind="Business" aria-pressed="false">Business</button>
+      <button type="button" data-kind="Tech" aria-pressed="false">Tech</button>
+    </div>
+    <input type="search" id="q" placeholder="Search cards" aria-label="Search cards">
+    <button class="tb-btn" id="big" type="button" aria-pressed="false">Large text</button>
+    <button class="tb-btn" id="copy" type="button">Copy themes</button>
+    <span class="spacer"></span>
+    <span class="updated" id="updated" role="status"></span>
+    <button class="tb-btn" id="refresh" type="button">Refresh</button>
+  </div>
+
+  <section class="board" id="board" hidden aria-live="polite"></section>
+  <datalist id="themeList"></datalist>
+</main>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBeBb2xx2hu91JSgoQu33Kog-v1T2o_BKZpJ2g7ApD58XxjbDHpA4r5dhzcsofYabs/exec";
+const TAB = "SeadehRetro";
+const AUTO_REFRESH_SECONDS = 60;
+const COLS = [
+  {key:"Keep",    q:"What worked, and we'd be foolish to drop next time?"},
+  {key:"Stop",    q:"What cost us time, quality or trust, and should not happen again?"},
+  {key:"Puzzled", q:"What still doesn't make sense, or what did you never get an answer to?"},
+  {key:"Wish",    q:"What would you have wanted that we didn't have?"}
+];
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(_){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(_){} }
+};
+let key = store.get("board.key") || "";
+let themes = store.get("board.themes") || {};   // cardId -> theme name (kept on this device)
+let rows = [], view = "columns", kind = "all", query = "", loading = false, timer = null;
+
+function cardId(r){ return [r["Time"], r["Person ID"], r["What"]].join("|"); }
+function esc(s){ const d=document.createElement("div"); d.textContent = s==null ? "" : String(s); return d.innerHTML; }
+
+async function load(silent){
+  if(loading) return;
+  loading = true; $("refresh").disabled = true;
+  if(!silent) $("updated").textContent = "Loading…";
+  try{
+    const res = await fetch(SCRIPT_URL + "?tab=" + encodeURIComponent(TAB) + "&key=" + encodeURIComponent(key));
+    const data = await res.json();
+    if(!data.ok){
+      if(data.error === "wrong key"){ showGate("That key didn't work. Check READ_KEY in the Apps Script."); return; }
+      throw new Error(data.error || "unknown");
+    }
+    rows = (data.rows || []).filter(r => String(r["What"]||"").trim());
+    store.set("board.key", key);
+    const typing = document.activeElement && document.activeElement.classList.contains("theme-in");
+    if(silent && typing){ /* don't wipe a theme being typed; it re-renders on change */ }
+    else if($("toolbar").hidden) showBoard();
+    else render();
+    $("updated").className = "updated";
+    $("updated").textContent = "Updated " + new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+  }catch(e){
+    if($("toolbar").hidden){ showGate("Couldn't reach the Sheet. Check your connection and that the script is deployed."); }
+    else { $("updated").className = "updated err"; $("updated").textContent = "Couldn't refresh. Showing the last cards loaded."; }
+  }finally{
+    loading = false; $("refresh").disabled = false;
+  }
+}
+
+function showGate(msg){
+  $("gate").hidden = false; $("toolbar").hidden = true; $("board").hidden = true; $("stats").hidden = true;
+  $("gateMsg").textContent = msg || "";
+  clearInterval(timer);
+}
+function showBoard(){
+  $("gate").hidden = true; $("toolbar").hidden = false; $("board").hidden = false; $("stats").hidden = false;
+  clearInterval(timer);
+  timer = setInterval(()=>{ if(!document.hidden) load(true); }, AUTO_REFRESH_SECONDS*1000);
+  render();
+}
+
+function visible(){
+  const q = query.trim().toLowerCase();
+  return rows.filter(r =>
+    (kind === "all" || r["Type"] === kind) &&
+    (!q || [r["What"], r["When"], r["Effect"], themes[cardId(r)]].join(" ").toLowerCase().includes(q))
+  );
+}
+
+function noteHTML(r){
+  const id = cardId(r), k = r["Type"] === "Business" ? "biz" : "tech";
+  const when = String(r["When"]||"").trim(), eff = String(r["Effect"]||"").trim();
+  return `<article class="note ${k}">
+    <p class="what">${esc(r["What"])}</p>
+    ${when ? `<p class="meta"><b>When:</b> ${esc(when)}</p>` : ""}
+    ${eff ? `<p class="meta"><b>Effect:</b> ${esc(eff)}</p>` : ""}
+    <div class="tagrow">
+      <span class="chip">${esc(view==="themes" ? r["Column"] : r["Type"])}</span>
+      <input type="text" class="theme-in" list="themeList" data-id="${esc(id)}" value="${esc(themes[id]||"")}" placeholder="Theme…" aria-label="Theme for this card">
+    </div>
+  </article>`;
+}
+
+function render(){
+  const list = visible();
+  const board = $("board");
+  // stats (always over all cards)
+  $("sCards").textContent = rows.length;
+  $("sPeople").textContent = new Set(rows.map(r=>r["Person ID"])).size;
+  $("sBiz").textContent = rows.filter(r=>r["Type"]==="Business").length;
+  $("sTech").textContent = rows.filter(r=>r["Type"]==="Tech").length;
+  const themeNames = [...new Set(rows.map(r=>themes[cardId(r)]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+  $("sThemes").textContent = themeNames.length;
+  $("themeList").innerHTML = themeNames.map(t=>`<option value="${esc(t)}"></option>`).join("");
+
+  if(!rows.length){
+    board.innerHTML = `<section class="lane" style="grid-column:1/-1"><p class="empty">No cards yet. They'll appear here as people send them.</p></section>`;
+    return;
+  }
+
+  let groups;
+  if(view === "columns"){
+    groups = COLS.map(c => ({title:c.key, q:c.q, items:list.filter(r=>r["Column"]===c.key)}));
+  } else {
+    const names = [...themeNames, ""];
+    groups = names.map(t => ({title: t || "No theme yet", items: list.filter(r => (themes[cardId(r)]||"") === t)}))
+      .filter(g => g.items.length || g.title === "No theme yet")
+      .sort((a,b)=> (a.title==="No theme yet") - (b.title==="No theme yet") || b.items.length - a.items.length);
+  }
+  board.innerHTML = groups.map(g => `<section class="lane ${view==="themes"?"theme":""}">
+      <h2>${esc(g.title)} <span>${g.items.length}</span></h2>
+      ${g.q ? `<p class="q">${esc(g.q)}</p>` : ""}
+      ${g.items.length ? g.items.map(noteHTML).join("") : `<p class="empty">${query||kind!=="all" ? "No matching cards." : "Nothing here."}</p>`}
+    </section>`).join("");
+}
+
+// theme edits: save on change (blur / Enter / pick from list), re-render after
+$("board").addEventListener("change", e => {
+  const el = e.target.closest(".theme-in"); if(!el) return;
+  const v = el.value.trim();
+  if(v) themes[el.dataset.id] = v; else delete themes[el.dataset.id];
+  store.set("board.themes", themes);
+  render();
+});
+$("board").addEventListener("keydown", e => {
+  if(e.key === "Enter" && e.target.classList.contains("theme-in")) e.target.blur();
+});
+
+document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => {
+  view = b.dataset.view;
+  document.querySelectorAll("[data-view]").forEach(x => x.setAttribute("aria-pressed", String(x===b)));
+  render();
+}));
+document.querySelectorAll("[data-kind]").forEach(b => b.addEventListener("click", () => {
+  kind = b.dataset.kind;
+  document.querySelectorAll("[data-kind]").forEach(x => x.setAttribute("aria-pressed", String(x===b)));
+  render();
+}));
+$("q").addEventListener("input", e => { query = e.target.value; render(); });
+$("big").addEventListener("click", () => {
+  const on = !document.body.classList.contains("big");
+  document.body.classList.toggle("big", on); $("big").setAttribute("aria-pressed", String(on));
+});
+$("refresh").addEventListener("click", () => load(false));
+$("copy").addEventListener("click", async () => {
+  const byTheme = {};
+  rows.forEach(r => { const t = themes[cardId(r)] || "No theme yet"; (byTheme[t] = byTheme[t] || []).push(r); });
+  const text = Object.keys(byTheme).sort((a,b)=>(a==="No theme yet")-(b==="No theme yet")||byTheme[b].length-byTheme[a].length)
+    .map(t => t + " (" + byTheme[t].length + ")\n" + byTheme[t].map(r => "- [" + r["Column"] + " · " + r["Type"] + "] " + r["What"]).join("\n"))
+    .join("\n\n");
+  try{ await navigator.clipboard.writeText(text); $("updated").className="updated"; $("updated").textContent = "Themes copied."; }
+  catch(_){ $("updated").className="updated err"; $("updated").textContent = "Couldn't copy. Your browser blocked the clipboard."; }
+});
+
+$("go").addEventListener("click", () => { key = $("key").value.trim(); if(key) load(false); else $("gateMsg").textContent = "Enter the key first."; });
+$("key").addEventListener("keydown", e => { if(e.key === "Enter") $("go").click(); });
+
+if(key) load(false); else showGate("");
+</script>
+</body>
+</html>
